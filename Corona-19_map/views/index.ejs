@@ -26,7 +26,7 @@
   let map = new naver.maps.Map('map', mapOptions);
   
   let markerList = [];
-  let winfowindowList = [];
+  let infowindowList = [];
 
   for(let i in data){
     let target = data[i];
@@ -36,7 +36,7 @@
       position: latlng,
       icon: {
         content: "<div class='marker'></div>",
-        anchor: new naver.maps.Point(12, 12);
+        anchor: new naver.maps.Point(12, 12)
       },
     });
 
@@ -53,6 +53,34 @@
       borderColor: '#00ff0000',
       anchorSize: new naver.maps.Size(0,0)
     });
+
+    markerList.push(marker);
+    infowindowList.push(infowindow);
+  }
+
+  for(let i = 0, ii = markerList.length; i < ii; i++){
+    naver.maps.Event.addListener(map, "click", ClickMap(i));
+    naver.maps.Event.addListener(markerList[i], "click", getClickHandler(i));
+  }
+
+  function ClickMap(i){
+    return function(){
+      let infowindow = infowindowList[i];
+      infowindow.close();
+    }
+  }
+
+  function getClickHandler(i){
+    return function(){
+      let marker = markerList[i];
+      let infowindow = infowindowList[i];
+      //infowindow를 지도 위에 표시해준다.(여부확인 후)
+      if(infowindow.getMap()){
+        infowindow.close();
+      }else{
+        infowindow.open(map, marker);
+      }
+    }
   }
   </script>
 </body>
