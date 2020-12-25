@@ -1,11 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>corona19 map</title>
+    <link rel="stylesheet" href="stylesheets/style.css">
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=m1y01endnb"></script>
+</head>
+<body>
+  <div id="navbar">corona19</div>
+  <div id="infoBox">
+    <div id="infoTitle">현재 날짜</div>
+    <div id="infoContent">2020.12.25</div>
+  </div>
+  <div id="map"></div>
+
+  <script type="text/javascript" src="/data/data.js"></script>
+  <script>
+  let mapOptions = {
+      center: new naver.maps.LatLng(37.3595704, 127.105399),
+      zoom: 10
+  };
+
+  let map = new naver.maps.Map('map', mapOptions);
+  
+  let markerList = [];
+  let winfowindowList = [];
+
+  for(let i in data){
+    let target = data[i];
+    let latlng = new naver.maps.LatLng(target.lat, target.lng);
+    marker = new naver.maps.Marker({
+      map: map,
+      position: latlng,
+      icon: {
+        content: "<div class='marker'></div>",
+        anchor: new naver.maps.Point(12, 12);
+      },
+    });
+
+    let content = `
+      <div class='infowindow_wrap'>
+        <div class='infowindow_title'>${target.title}</div>
+        <div class='infowindow_content'>${target.content}</div>
+        <div class='infowindow_date'>${target.date}</div>
+      </div>`;
+    
+    let infowindow = new naver.maps.InfoWindow({
+      content: content,
+      backgroundColor: '#00ff0000',
+      borderColor: '#00ff0000',
+      anchorSize: new naver.maps.Size(0,0)
+    });
+  }
+  </script>
+</body>
 </html>
