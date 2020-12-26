@@ -1,87 +1,175 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <title>corona19 map</title>
     <link rel="stylesheet" href="stylesheets/style.css">
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=m1y01endnb"></script>
-</head>
-<body>
-  <div id="navbar">corona19</div>
-  <div id="infoBox">
-    <div id="infoTitle">현재 날짜</div>
-    <div id="infoContent">2020.12.25</div>
-  </div>
-  <div id="map"></div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f564a709ee0736c35b553ee23924904b&libraries=services"></script>
+  </head>
+  <body>
+    <div id="navbar">corona19</div>
+    <div id="infoBox">
+      <div id="infoTitle">현재 날짜</div>
+      <div id="infoContent">2020.12.25</div>
+    </div>
+    <div id="search">
+      <input id="search_input" placeholder="목적지를 입력해주세요" />
+      <button id="search_button">검색</button>
+    </div>
+    <div id="current">현재 위치</div>
 
-  <script type="text/javascript" src="/data/data.js"></script>
-  <script>
-  let mapOptions = {
-      center: new naver.maps.LatLng(37.3595704, 127.105399),
-      zoom: 10
-  };
+    <div id="map"></div>
 
-  let map = new naver.maps.Map('map', mapOptions);
-  
-  let markerList = [];
-  let infowindowList = [];
+    <script type="text/javascript" src="/data/data.js"></script>
+    <script>
+    let mapOptions = {
+        center: new naver.maps.LatLng(37.3595704, 127.105399),
+        zoom: 10
+    };
 
-  for(let i in data){
-    let target = data[i];
-    let latlng = new naver.maps.LatLng(target.lat, target.lng);
-    marker = new naver.maps.Marker({
-      map: map,
-      position: latlng,
-      icon: {
-        content: "<div class='marker'></div>",
-        anchor: new naver.maps.Point(12, 12)
-      },
-    });
-
-    let content = `
-      <div class='infowindow_wrap'>
-        <div class='infowindow_title'>${target.title}</div>
-        <div class='infowindow_content'>${target.content}</div>
-        <div class='infowindow_date'>${target.date}</div>
-      </div>`;
+    let map = new naver.maps.Map('map', mapOptions);
     
-    let infowindow = new naver.maps.InfoWindow({
-      content: content,
-      backgroundColor: '#00ff0000',
-      borderColor: '#00ff0000',
-      anchorSize: new naver.maps.Size(0,0)
-    });
+    let markerList = [];
+    let infowindowList = [];
 
-    markerList.push(marker);
-    infowindowList.push(infowindow);
-  }
+    for(let i in data){
+      let target = data[i];
+      let latlng = new naver.maps.LatLng(target.lat, target.lng);
+      marker = new naver.maps.Marker({
+        map: map,
+        position: latlng,
+        icon: {
+          content: "<div class='marker'></div>",
+          anchor: new naver.maps.Point(12, 12)
+        },
+      });
 
-  for(let i = 0, ii = markerList.length; i < ii; i++){
-    naver.maps.Event.addListener(map, "click", ClickMap(i));
-    naver.maps.Event.addListener(markerList[i], "click", getClickHandler(i));
-  }
+      let content = `
+        <div class='infowindow_wrap'>
+          <div class='infowindow_title'>${target.title}</div>
+          <div class='infowindow_content'>${target.content}</div>
+          <div class='infowindow_date'>${target.date}</div>
+        </div>`;
+      
+      let infowindow = new naver.maps.InfoWindow({
+        content: content,
+        backgroundColor: '#00ff0000',
+        borderColor: '#00ff0000',
+        anchorSize: new naver.maps.Size(0,0)
+      });
 
-  function ClickMap(i){
-    return function(){
-      let infowindow = infowindowList[i];
-      infowindow.close();
+      markerList.push(marker);
+      infowindowList.push(infowindow);
     }
-  }
 
-  function getClickHandler(i){
-    return function(){
-      let marker = markerList[i];
-      let infowindow = infowindowList[i];
-      //infowindow를 지도 위에 표시해준다.(여부확인 후)
-      if(infowindow.getMap()){
+    for(let i = 0, ii = markerList.length; i < ii; i++){
+      naver.maps.Event.addListener(map, "click", ClickMap(i));
+      naver.maps.Event.addListener(markerList[i], "click", getClickHandler(i));
+    }
+
+    function ClickMap(i){
+      return function(){
+        let infowindow = infowindowList[i];
         infowindow.close();
-      }else{
-        infowindow.open(map, marker);
       }
     }
-  }
-  </script>
-</body>
+
+    function getClickHandler(i){
+      return function(){
+        let marker = markerList[i];
+        let infowindow = infowindowList[i];
+        //infowindow를 지도 위에 표시해준다.(여부확인 후)
+        if(infowindow.getMap()){
+          infowindow.close();
+        }else{
+          infowindow.open(map, marker);
+        }
+      }
+    }
+
+    // $('#current').click(()=>{
+    //   alert("클릭이벤트");
+    // })
+
+    // true일때 최초 1회만 작동
+    let currnetUse = true;
+      
+    $('#current').click(()=>{
+      if("geolocation" in navigator){
+        navigator.geolocation.getCurrentPosition(function(position){
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const latlng = new naver.maps.LatLng(lat, lng); // 현재위치 얻어오기
+          if(currnetUse){
+            // marker생성 코드
+            marker = new naver.maps.Marker({
+              map: map,
+              position: latlng,
+              icon : {
+                content: '<img class="pulse" draggable="false" unselectable="on" src="https://myfirstmap.s3.ap-northeast-2.amazonaws.com/circle.png">',
+                anchor: new naver.maps.Point(11, 11),
+              },
+            });
+            currnetUse = false; // 1회 작동 이후엔 false
+          }
+        
+          // zoom
+          map.setZoom(14, false); // zoom level, animation
+          map.panTo(latlng);
+        });
+      }else{
+        alert("위치정보 사용 불가능");
+      };
+    });
+
+
+    let ps = new kakao.maps.services.Places(); // 해당 ps함수는 목적지 검색에 있어 중요한 함수(카카오 api를 통해 선언해줌)
+    let search_arr = [];
+
+    $("#search_input").on("keydown", function(e){
+      if(e.keyCode === 13){ //13은 enter
+        // enter키를 누르면 검색api를 요청함
+        let content = $(this).val(); // this => search_input // 검색란에서 검색한 키워드는 content 변수 안에 담기게 된다.
+        ps.keywordSearch(content, placeSearchCB); // 목적지 검색하는 API(content를 통해 api를 요청하고 그의 결과값이 placeSearchCB라는 함수를 통해 처리됨)
+      }
+    });
+
+    // enter & 검색버튼 기능 동일화
+    $("#search_button").on("click", function(e){
+      let content = $("#search_input").val();
+      ps.keywordSearch(content, placeSearchCB);
+    });
+
+    // 검색키워드의 위도경도 받아옴
+    function placeSearchCB(data, status, pagination){ //data: 목적지에 대한 검색결과, status: 카카오서버에 대한 상태, pagination: 검색결과가 얼마나 있는지의 번호
+      if(status === kakao.maps.services.Status.OK){
+        let target = data[0];
+        // console.log(target);
+        const let = target.y;
+        const lng = target.x;
+        const latlng = new naver.maps.LatLng(lat, lng);
+        marker = new naver.maps.Marker({
+          position: latlng,
+          map: map
+        });
+        if(search_arr.length == 0){
+          search_arr.push(marker);
+        }else{
+          search_arr.push(marker);
+          let pre_marker = search_arr.splice(0, 1); //pre_marker: 이전것 추출(0번째에 있는 것 1개)
+          pre_marker[0].setMap(null); // 0번째 것 지움
+        }
+        //zoom 및 fade-in
+        map.setZoom(14, false); 
+        map.panTo(lanlng);
+      }else{
+        alert("검색결과가 없습니다.");
+      }
+    }
+    </script>
+  </body>
 </html>
